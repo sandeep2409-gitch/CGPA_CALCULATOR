@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CGPA Calculator</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <style>
+    body {
+      font-family: 'Times New Roman', Times, serif;
+      background: #f2f2f2;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    input, select {
+      padding: 8px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 10px;
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .output {
+      margin-top: 20px;
+      padding: 15px;
+      border-top: 2px solid #000;
+      background: #e9f9e9;
+    }
+    .subject-block {
+      margin-bottom: 10px;
+    }
+    button{
+      padding: 12px 8px;
+      border-radius: 12px;
+      box-sizing: border-box;
+      width: 50%;
+      margin: auto;
+      row-gap: 12px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>CGPA Calculator</h2>
+  <label>Student Name:</label>
+  <input type="text" id="name">
+
+  <label>Roll Number:</label>
+  <input type="text" id="roll">
+
+  <div id="subjects"></div>
+<div style="text-align: center;">
+  <button onclick="calculateCGPA()">Calculate CGPA</button><br> 
+  <button onclick="exportToExcel()">Export to Excel</button>
+
+  <div class="output" id="report"></div>
+</div>
+</div>
+<script>
+  const subjects = {
+    "DIFFERENTIAL EQUATIONS & VECTOR CALCULUS": 3.0,
+    "COMMUNICATIVE ENGLISH": 2.0,
+    "BASIC CIVIL & MECHANICAL ENGINEERING": 3.0,
+    "CHEMISTRY": 3.0,
+    "DATASTRUCTURES": 3.0,
+    "HEALTH AND WELLNESS YOGA AND SPORTS": 0.5,
+    "ENGINEERING WORKSHOP": 1.5,
+    "DS LAB": 1.5,
+    "CHEMISTRY LAB": 1.0,
+    "COMMUNICATIVE ENGLISH LAB": 1.0
+  };
+
+  const gradePoints = {
+    "S": 10,
+    "A": 9,
+    "B": 8,
+    "C": 7,
+    "D": 6,
+    "E": 5,
+    "F": 0
+  };
+
+  const dataForExcel = [];
+
+  const gradeOptions = Object.keys(gradePoints).map(grade => `<option value="${grade}">${grade}</option>`).join("");
+
+  const subjectDiv = document.getElementById("subjects");
+  for (let subject in subjects) {
+    subjectDiv.innerHTML += `
+      <div class="subject-block">
+        <label>${subject} :</label>
+        <select id="${subject}">
+          <option value="">Select Grade</option>
+          ${gradeOptions}
+        </select>
+      </div>
+    `;
+  }
+
+  function calculateCGPA() {
+    const name = document.getElementById("name").value.trim();
+    const roll = document.getElementById("roll").value.trim();
+    let totalCredits = 0;
+    let totalPoints = 0;
+    let failFlag = false;
+    let report = `<strong>Name:</strong> ${name}<br><strong>Roll No:</strong> ${roll}<br><br><strong>Subject-wise Grades:</strong><br>`;
+    const studentRow = { Name: name, Roll: roll };
+
+    for (let subject in subjects) {
+      const grade = document.getElementById(subject).value;
+      if (!gradePoints.hasOwnProperty(grade)) {
+        alert(`Please select a valid grade for ${subject}`);
+        return;
+      }
+      const credit = subjects[subject];
+      const point = gradePoints[grade];
+      totalCredits += credit;
+      totalPoints += point * credit;
+      if (grade === "F") failFlag = true;
+
+      report += `${subject} - Grade: ${grade}, Credit: ${credit}<br>`;
+      studentRow[subject] = grade;
+    }
+
+    const cgpa = (totalPoints / totalCredits).toFixed(2);
+    const status = failFlag ? "FAIL" : "PASS";
+
+    report += `<br><strong>Total Credits:</strong> ${totalCredits}<br>`;
+    report += `<strong>CGPA:</strong> ${cgpa}<br>`;
+    report += `<strong>Status:</strong> ${status}`;
+
+    studentRow["Total Credits"] = totalCredits;
+    studentRow["CGPA"] = cgpa;
+    studentRow["Status"] = status;
+    dataForExcel.push(studentRow);
+
+    document.getElementById("report").innerHTML = report;
+  }
+
+  function exportToExcel() {
+    if (dataForExcel.length === 0) {
+      alert("No data to export. Please calculate CGPA first.");
+      return;
+    }
+    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "CGPA Records");
+
+    XLSX.writeFile(workbook, "CGPA_Records.xlsx");
+  }
+</script>
+
+</body>
+</html>
