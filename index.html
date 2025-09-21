@@ -62,8 +62,7 @@
   <div id="subjects"></div>
 <div style="text-align: center;">
   <button onclick="calculateCGPA()">Calculate CGPA</button><br> 
-  <button onclick="exportToExcel()">Export to Excel</button>
-
+  
   <div class="output" id="report"></div>
 </div>
 </div>
@@ -71,14 +70,14 @@
   const subjects = {
     "DIFFERENTIAL EQUATIONS & VECTOR CALCULUS": 3.0,
     "COMMUNICATIVE ENGLISH": 2.0,
+    "COMMUNICATIVE ENGLISH LAB": 1.0,
+   "CHEMISTRY": 3.0,
+   "CHEMISTRY LAB": 1.0,
     "BASIC CIVIL & MECHANICAL ENGINEERING": 3.0,
-    "CHEMISTRY": 3.0,
+      "ENGINEERING WORKSHOP": 1.5,
     "DATASTRUCTURES": 3.0,
+    "DATASTRUCTURES LAB": 1.0,
     "HEALTH AND WELLNESS YOGA AND SPORTS": 0.5,
-    "ENGINEERING WORKSHOP": 1.5,
-    "DS LAB": 1.5,
-    "CHEMISTRY LAB": 1.0,
-    "COMMUNICATIVE ENGLISH LAB": 1.0
   };
 
   const gradePoints = {
@@ -148,17 +147,7 @@
     document.getElementById("report").innerHTML = report;
   }
 
-  function exportToExcel() {
-    if (dataForExcel.length === 0) {
-      alert("No data to export. Please calculate CGPA first.");
-      return;
-    }
-    const worksheet = XLSX.utils.json_to_sheet(dataForExcel);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "CGPA Records");
-
-    XLSX.writeFile(workbook, "CGPA_Records.xlsx");
-  }
+  
 </script>
 
 </body>
